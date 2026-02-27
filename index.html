@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KwaiBot" />
+  <title>KwaiBot — Automação Kwai</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: #2a2a38;
+      --accent: #ff3b5c;
+      --accent2: #ff8c00;
+      --accent3: #00e5ff;
+      --text: #f0f0f5;
+      --muted: #6b6b80;
+      --green: #00ff88;
+      --red: #ff3b5c;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* Background animated mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% -10%, rgba(255,59,92,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0,229,255,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px 100px;
+    }
+
+    /* Header */
+    .header {
+      padding: 56px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      box-shadow: 0 0 0 3px rgba(107,107,128,0.2);
+      transition: all 0.4s;
+    }
+
+    .status-dot.active {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.25), 0 0 16px rgba(0,255,136,0.4);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.2s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Input styles */
+    .input-group {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,59,92,0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    /* URL input special */
+    .url-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .url-wrapper input {
+      flex: 1;
+    }
+
+    .btn-paste {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--accent3);
+      border-radius: 10px;
+      padding: 0 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .btn-paste:active {
+      transform: scale(0.95);
+      background: rgba(0,229,255,0.1);
+    }
+
+    /* Messages list */
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .message-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .message-item textarea {
+      flex: 1;
+      min-height: 56px;
+      font-size: 13px;
+    }
+
+    .btn-remove {
+      background: rgba(255,59,92,0.1);
+      border: 1px solid rgba(255,59,92,0.2);
+      color: var(--accent);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-remove:active { transform: scale(0.9); }
+
+    .btn-add {
+      width: 100%;
+      background: rgba(0,229,255,0.06);
+      border: 1px dashed rgba(0,229,255,0.25);
+      color: var(--accent3);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add:active { transform: scale(0.98); background: rgba(0,229,255,0.12); }
+
+    /* Range sliders */
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .range-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .range-group label span {
+      font-family: 'Space Mono', monospace;
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255,59,92,0.5);
+    }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .toggle-row:not(:last-child) {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .toggle-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: rgba(0,255,136,0.2);
+      border: 1px solid var(--green);
+    }
+
+    .toggle input:checked + .toggle-slider::after {
+      transform: translateX(20px);
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(0,255,136,0.5);
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    /* Log */
+    .log-box {
+      background: #050508;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      height: 160px;
+      overflow-y: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .log-box::-webkit-scrollbar { width: 4px; }
+    .log-box::-webkit-scrollbar-track { background: transparent; }
+    .log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .log-line { color: var(--muted); }
+    .log-line.success { color: var(--green); }
+    .log-line.error { color: var(--red); }
+    .log-line.info { color: var(--accent3); }
+    .log-line.warning { color: var(--accent2); }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--surface2);
+      border-radius: 8px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 12px rgba(255,59,92,0.4);
+    }
+
+    /* Main CTA button */
+    .btn-main {
+      width: 100%;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-main.start {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6b35 100%);
+      color: white;
+      box-shadow: 0 8px 32px rgba(255,59,92,0.35);
+    }
+
+    .btn-main.stop {
+      background: linear-gradient(135deg, #1a1a24, #2a2a38);
+      color: var(--red);
+      border: 1px solid rgba(255,59,92,0.3);
+    }
+
+    .btn-main:active { transform: scale(0.98); }
+
+    .btn-main::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10,10,15,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0 12px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      gap: 4px;
+      transition: color 0.2s;
+      border: none;
+      background: none;
+    }
+
+    .nav-item .nav-icon { font-size: 20px; }
+    .nav-item.active { color: var(--accent); }
+
+    /* Sections */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,59,92,0.12);
+      border: 1px solid rgba(255,59,92,0.2);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.green {
+      background: rgba(0,255,136,0.1);
+      border-color: rgba(0,255,136,0.2);
+      color: var(--green);
+    }
+
+    /* Number input row */
+    .number-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Chip selector */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip.selected {
+      background: rgba(255,59,92,0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Kwai link preview */
+    .link-preview {
+      display: none;
+      background: var(--surface2);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--accent3);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .link-preview.show { display: flex; }
+    .link-preview .lp-icon { font-size: 18px; }
+    .link-preview .lp-text { flex: 1; line-height: 1.4; }
+    .link-preview .lp-id { font-family: 'Space Mono', monospace; font-size: 10px; opacity: 0.7; }
+
+    /* Shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ==================== SEÇÃO: DISPARO ==================== -->
+  <section class="section active" id="section-fire">
+
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">🎯</div>
+        <div class="logo-text">Kwai<span>Bot</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="status-badge" class="badge">● PARADO</span>
+        <div class="status-dot" id="status-dot"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value" id="stat-sent">0</div>
+        <div class="stat-label">Enviados</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-pending">0</div>
+        <div class="stat-label">Fila</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-errors">0</div>
+        <div class="stat-label">Erros</div>
+      </div>
+    </div>
+
+    <!-- URL do vídeo -->
+    <div class="card">
+      <div class="card-title">Link do Vídeo</div>
+      <div class="input-group">
+        <div class="url-wrapper">
+          <input type="text" id="video-url" placeholder="https://www.kwai.com/short/..." />
+          <button class="btn-paste" onclick="pasteURL()">COLAR</button>
+        </div>
+        <div class="link-preview" id="link-preview">
+          <span class="lp-icon">🎬</span>
+          <div class="lp-text">
+            <div>Vídeo detectado</div>
+            <div class="lp-id" id="link-id"></div>
+          </div>
+          <span class="badge green">✓ OK</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Responder quantos comentários?</label>
+        <div class="chips" id="limit-chips">
+          <div class="chip selected" data-val="todos" onclick="selectChip(this, 'limit')">Todos</div>
+          <div class="chip" data-val="50" onclick="selectChip(this, 'limit')">50</div>
+          <div class="chip" data-val="100" onclick="selectChip(this, 'limit')">100</div>
+          <div class="chip" data-val="200" onclick="selectChip(this, 'limit')">200</div>
+          <div class="chip" data-val="custom" onclick="selectChip(this, 'limit')">Custom</div>
+        </div>
+        <input type="number" id="limit-custom" placeholder="Ex: 150" style="display:none;margin-top:10px;" min="1" />
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div style="margin-bottom:16px;" id="progress-section" style="display:none">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
+        <span>Progresso</span>
+        <span id="progress-text">0%</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;display:flex;align-items:center;">
+        <span style="display:flex;align-items:center;gap:8px;"><span style="width:3px;height:12px;background:var(--accent);border-radius:2px;display:block;"></span>Log em Tempo Real</span>
+        <button onclick="clearLog()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:Syne;">LIMPAR</button>
+      </div>
+      <div class="log-box" id="log-box">
+        <div class="log-line info">» KwaiBot pronto. Configure e inicie o disparo.</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-main start" id="btn-main" onclick="toggleAutomation()">
+      ▶ INICIAR DISPARO
+    </button>
+
+  </section>
+
+  <!-- ==================== SEÇÃO: MENSAGENS ==================== -->
+  <section class="section" id="section-msgs">
+
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">💬</div>
+        <div class="logo-text">Men<span>sagens</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Variações de Resposta</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+        Adicione múltiplas variações. O bot vai escolher uma aleatoriamente a cada resposta — comportamento humano garantido.
+      </p>
+
+      <div class="messages-list" id="messages-list"></div>
+      <button class="btn-add" onclick="addMessage()">+ Adicionar Variação</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Variáveis Disponíveis</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <span class="badge">@nome</span>
+        <span class="badge">@video</span>
+        <span class="badge">@hora</span>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6;">
+        Use <b style="color:var(--accent3)">@nome</b> para mencionar o usuário do comentário.<br>
+        Use <b style="color:var(--accent3)">@video</b> para o título do vídeo.
+      </p>
+    </div>
+
+  </section>
+
+  <!-- ==================== SEÇÃO: CONFIGURAÇÕES ==================== -->
+  <section class="section" id="section-config">
+
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">⚙️</div>
+        <div class="logo-text">Config<span>urações</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Delay Humanizado</div>
+      <div class="range-row">
+        <div class="range-group">
+          <label>Mínimo <span id="delay-min-val">3s</span></label>
+          <input type="range" id="delay-min" min="1" max="60" value="3" oninput="updateDelay('min', this.value)">
+        </div>
+        <div class="range-group">
+          <label>Máximo <span id="delay-max-val">12s</span></label>
+          <input type="range" id="delay-max" min="1" max="120" value="12" oninput="updateDelay('max', this.value)">
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;">
+        Delay aleatório entre <b id="delay-preview" style="color:var(--accent)">3s e 12s</b> entre cada resposta.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Comportamento</div>
+
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Evitar duplicatas</div>
+          <div class="toggle-desc">Não responder dois comentários do mesmo user</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-nodup" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Pausar se erro</div>
+          <div class="toggle-desc">Para automaticamente se ocorrer falhas seguidas</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-pause-err" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Modo stealth</div>
+          <div class="toggle-desc">Delays extras aleatórios anti-detecção</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-stealth">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Autenticação Kwai</div>
+      <div class="input-group">
+        <label>Cookie de sessão (did_cookie / token)</label>
+        <textarea id="kwai-token" placeholder="Cole aqui seu cookie de sessão do Kwai. Você pode pegar no DevTools > Application > Cookies em www.kwai.com" style="min-height:80px;font-family:'Space Mono',monospace;font-size:11px;"></textarea>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.6;">
+        🔒 Armazenado apenas localmente no seu dispositivo.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pausa programada</div>
+      <div class="number-row">
+        <div class="input-group">
+          <label>Pausar após (respostas)</label>
+          <input type="number" id="pause-after" placeholder="Ex: 30" min="1" value="50" />
+        </div>
+        <div class="input-group">
+          <label>Duração da pausa (min)</label>
+          <input type="number" id="pause-duration" placeholder="Ex: 5" min="1" value="5" />
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ==================== SEÇÃO: HISTÓRICO ==================== -->
+  <section class="section" id="section-history">
+
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">📊</div>
+        <div class="logo-text">His<span>tórico</span></div>
+      </div>
+    </div>
+
+    <div id="history-list">
+      <div class="empty-state">
+        <div class="emoji">📭</div>
+        <p>Nenhum disparo realizado ainda.<br>Inicie uma automação para ver o histórico aqui.</p>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="goTo('fire', this)">
+    <span class="nav-icon">🎯</span> Disparo
+  </button>
+  <button class="nav-item" onclick="goTo('msgs', this)">
+    <span class="nav-icon">💬</span> Mensagens
+  </button>
+  <button class="nav-item" onclick="goTo('config', this)">
+    <span class="nav-icon">⚙️</span> Config
+  </button>
+  <button class="nav-item" onclick="goTo('history', this)">
+    <span class="nav-icon">📊</span> Histórico
+  </button>
+</nav>
+
+<script>
+// ================================================
+// STATE
+// ================================================
+let state = {
+  running: false,
+  sent: 0,
+  errors: 0,
+  queue: [],
+  interval: null,
+  currentJobId: null,
+  messages: [],
+  history: []
+};
+
+// ================================================
+// INIT
+// ================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  renderMessages();
+  updateStats();
+  initURLWatcher();
+  registerSW();
+});
+
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+}
+
+// ================================================
+// NAVIGATION
+// ================================================
+function goTo(page, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + page).classList.add('active');
+  el.classList.add('active');
+}
+
+// ================================================
+// STORAGE
+// ================================================
+function saveToStorage() {
+  try {
+    localStorage.setItem('kwaibot_msgs', JSON.stringify(state.messages));
+    localStorage.setItem('kwaibot_history', JSON.stringify(state.history.slice(-50)));
+    localStorage.setItem('kwaibot_token', document.getElementById('kwai-token').value);
+    localStorage.setItem('kwaibot_delay_min', document.getElementById('delay-min').value);
+    localStorage.setItem('kwaibot_delay_max', document.getElementById('delay-max').value);
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const msgs = localStorage.getItem('kwaibot_msgs');
+    if (msgs) state.messages = JSON.parse(msgs);
+    else state.messages = [
+      'Que vídeo incrível! 🔥',
+      'Adorei o conteúdo, continue assim! 👏',
+      'Muito bom @nome! 😍',
+      'Top demais esse vídeo! 🙌'
+    ];
+
+    const hist = localStorage.getItem('kwaibot_history');
+    if (hist) state.history = JSON.parse(hist);
+
+    const token = localStorage.getItem('kwaibot_token');
+    if (token) document.getElementById('kwai-token').value = token;
+
+    const dmin = localStorage.getItem('kwaibot_delay_min');
+    const dmax = localStorage.getItem('kwaibot_delay_max');
+    if (dmin) { document.getElementById('delay-min').value = dmin; updateDelay('min', dmin); }
+    if (dmax) { document.getElementById('delay-max').value = dmax; updateDelay('max', dmax); }
+  } catch(e) {
+    state.messages = ['Que vídeo incrível! 🔥', 'Adorei demais! 👏'];
+  }
+}
+
+// ================================================
+// MESSAGES
+// ================================================
+function renderMessages() {
+  const list = document.getElementById('messages-list');
+  list.innerHTML = '';
+  state.messages.forEach((msg, i) => {
+    const item = document.createElement('div');
+    item.className = 'message-item';
+    item.innerHTML = `
+      <textarea oninput="updateMessage(${i}, this.value)">${msg}</textarea>
+      <button class="btn-remove" onclick="removeMessage(${i})">✕</button>
+    `;
+    list.appendChild(item);
+  });
+  saveToStorage();
+}
+
+function addMessage() {
+  state.messages.push('');
+  renderMessages();
+  // Focus last
+  const textareas = document.querySelectorAll('#messages-list textarea');
+  if (textareas.length) textareas[textareas.length - 1].focus();
+}
+
+function removeMessage(i) {
+  state.messages.splice(i, 1);
+  renderMessages();
+}
+
+function updateMessage(i, val) {
+  state.messages[i] = val;
+  saveToStorage();
+}
+
+// ================================================
+// CHIPS
+// ================================================
+function selectChip(el, group) {
+  el.closest('.card').querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  if (group === 'limit') {
+    const customInput = document.getElementById('limit-custom');
+    customInput.style.display = el.dataset.val === 'custom' ? 'block' : 'none';
+  }
+}
+
+// ================================================
+// URL
+// ================================================
+function initURLWatcher() {
+  document.getElementById('video-url').addEventListener('input', function() {
+    checkURL(this.value);
+  });
+}
+
+function checkURL(url) {
+  const preview = document.getElementById('link-preview');
+  const linkId = document.getElementById('link-id');
+
+  const patterns = [
+    /kwai\.com\/(short|video)\/([A-Za-z0-9_-]+)/,
+    /kwaichan\.com\/short\/([A-Za-z0-9_-]+)/,
+    /kwai\.app\/([A-Za-z0-9_-]+)/,
+  ];
+
+  let matched = null;
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) { matched = m[m.length - 1]; break; }
+  }
+
+  if (matched) {
+    preview.classList.add('show');
+    linkId.textContent = 'ID: ' + matched;
+  } else {
+    preview.classList.remove('show');
+  }
+}
+
+async function pasteURL() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const input = document.getElementById('video-url');
+    input.value = text;
+    checkURL(text);
+    log('info', '» URL colada da área de transferência');
+  } catch(e) {
+    log('warning', '» Permissão de clipboard negada. Cole manualmente.');
+  }
+}
+
+// ================================================
+// DELAY
+// ================================================
+function updateDelay(type, val) {
+  val = parseInt(val);
+  document.getElementById('delay-' + type + '-val').textContent = val + 's';
+  const min = parseInt(document.getElementById('delay-min').value);
+  const max = parseInt(document.getElementById('delay-max').value);
+  document.getElementById('delay-preview').textContent = min + 's e ' + max + 's';
+  saveToStorage();
+}
+
+function getRandomDelay() {
+  const min = parseInt(document.getElementById('delay-min').value) * 1000;
+  const max = parseInt(document.getElementById('delay-max').value) * 1000;
+  const stealth = document.getElementById('toggle-stealth').checked;
+  let delay = min + Math.random() * (max - min);
+  if (stealth) delay += Math.random() * 3000;
+  return Math.floor(delay);
+}
+
+// ================================================
+// LOG
+// ================================================
+function log(type, msg) {
+  const box = document.getElementById('log-box');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  const time = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  line.textContent = '[' + time + '] ' + msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+
+  // Max 200 lines
+  while (box.children.length > 200) box.removeChild(box.firstChild);
+}
+
+function clearLog() {
+  document.getElementById('log-box').innerHTML = '';
+}
+
+// ================================================
+// STATS
+// ================================================
+function updateStats() {
+  document.getElementById('stat-sent').textContent = state.sent;
+  document.getElementById('stat-pending').textContent = state.queue.length;
+  document.getElementById('stat-errors').textContent = state.errors;
+}
+
+function updateProgress(current, total) {
+  if (!total) return;
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = pct + '%';
+}
+
+// ================================================
+// KWAI API CORE
+// ================================================
+function getToken() {
+  return document.getElementById('kwai-token').value.trim();
+}
+
+function getHeaders(token) {
+  return {
+    'Content-Type': 'application/json',
+    'Cookie': token,
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Referer': 'https://www.kwai.com/',
+    'Origin': 'https://www.kwai.com',
+  };
+}
+
+function extractVideoId(url) {
+  const patterns = [
+    /kwai\.com\/(?:short|video)\/([A-Za-z0-9_-]+)/,
+    /kwaichan\.com\/short\/([A-Za-z0-9_-]+)/,
+    /kwai\.app\/([A-Za-z0-9_-]+)/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+async function fetchComments(videoId, token, cursor = '') {
+  // Kwai's unofficial API endpoint for comments
+  const endpoint = `https://www.kwai.com/rest/wd/photo/comment/list?photoId=${videoId}&count=50&pcursor=${cursor}`;
+  try {
+    const res = await fetch(endpoint, {
+      method: 'GET',
+      headers: getHeaders(token),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return data;
+  } catch(e) {
+    throw new Error('Falha ao buscar comentários: ' + e.message);
+  }
+}
+
+async function postReply(commentId, photoId, message, token) {
+  const endpoint = 'https://www.kwai.com/rest/wd/photo/comment/add';
+  const body = {
+    photoId: photoId,
+    content: message,
+    replyToCommentId: commentId,
+  };
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: getHeaders(token),
+      credentials: 'include',
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.result !== 1) throw new Error(data.error_msg || 'Resposta inválida');
+    return true;
+  } catch(e) {
+    throw new Error('Falha ao postar: ' + e.message);
+  }
+}
+
+function pickMessage(authorName) {
+  const msgs = state.messages.filter(m => m.trim().length > 0);
+  if (!msgs.length) return 'Obrigado pelo comentário!';
+  let msg = msgs[Math.floor(Math.random() * msgs.length)];
+  msg = msg.replace(/@nome/g, authorName || 'você');
+  msg = msg.replace(/@hora/g, new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}));
+  return msg;
+}
+
+// ================================================
+// AUTOMATION LOOP
+// ================================================
+async function toggleAutomation() {
+  if (state.running) {
+    stopAutomation();
+  } else {
+    await startAutomation();
+  }
+}
+
+async function startAutomation() {
+  const url = document.getElementById('video-url').value.trim();
+  if (!url) {
+    log('error', '✗ Cole o link do vídeo primeiro!');
+    return;
+  }
+
+  const videoId = extractVideoId(url);
+  if (!videoId) {
+    log('error', '✗ Link do Kwai inválido. Verifique o formato.');
+    return;
+  }
+
+  const token = getToken();
+  if (!token) {
+    log('warning', '⚠ Nenhum token de sessão configurado. Vá em Configurações > Autenticação.');
+    log('info', '» Rodando em modo simulação (sem envio real)');
+  }
+
+  const msgs = state.messages.filter(m => m.trim().length > 0);
+  if (!msgs.length) {
+    log('error', '✗ Adicione pelo menos uma mensagem em "Mensagens".');
+    return;
+  }
+
+  // Get limit
+  let limit = null;
+  const selectedChip = document.querySelector('#limit-chips .chip.selected');
+  if (selectedChip) {
+    const val = selectedChip.dataset.val;
+    if (val === 'custom') {
+      limit = parseInt(document.getElementById('limit-custom').value) || null;
+    } else if (val !== 'todos') {
+      limit = parseInt(val);
+    }
+  }
+
+  state.running = true;
+  state.sent = 0;
+  state.errors = 0;
+  state.queue = [];
+  state.currentJobId = Date.now();
+
+  // UI
+  document.getElementById('btn-main').className = 'btn-main stop';
+  document.getElementById('btn-main').textContent = '⏹ PARAR DISPARO';
+  document.getElementById('status-dot').classList.add('active');
+  document.getElementById('status-badge').textContent = '● RODANDO';
+  document.getElementById('status-badge').className = 'badge green';
+  document.getElementById('progress-section').style.display = 'block';
+
+  log('info', '▶ Iniciando automação...');
+  log('info', `» Vídeo: ${videoId}`);
+  if (limit) log('info', `» Limite: ${limit} comentários`);
+  else log('info', '» Sem limite — responder todos');
+
+  saveToStorage();
+  await runLoop(videoId, token, limit);
+}
+
+async function runLoop(videoId, token, limit) {
+  const jobId = state.currentJobId;
+  const nodup = document.getElementById('toggle-nodup').checked;
+  const pauseAfter = parseInt(document.getElementById('pause-after').value) || 50;
+  const pauseDuration = parseInt(document.getElementById('pause-duration').value) || 5;
+
+  const seenUsers = new Set();
+  let cursor = '';
+  let totalFetched = 0;
+  let totalReplied = 0;
+  let consecutiveErrors = 0;
+
+  log('info', '» Buscando comentários...');
+
+  while (state.running && jobId === state.currentJobId) {
+
+    // Fetch batch of comments
+    let comments = [];
+    let nextCursor = '';
+    try {
+      if (token) {
+        const data = await fetchComments(videoId, token, cursor);
+        if (data && data.commentFeeds) {
+          comments = data.commentFeeds;
+          nextCursor = data.pcursor || '';
+        } else {
+          // Simulate if no token or unexpected response
+          comments = generateFakeComments(20, totalFetched);
+          nextCursor = totalFetched < 200 ? 'next' : '';
+        }
+      } else {
+        // Simulation mode
+        comments = generateFakeComments(20, totalFetched);
+        nextCursor = totalFetched < 200 ? 'next' : '';
+        await sleep(800);
+      }
+    } catch(e) {
+      log('error', `✗ Erro ao buscar: ${e.message}`);
+      consecutiveErrors++;
+      if (document.getElementById('toggle-pause-err').checked && consecutiveErrors >= 3) {
+        log('error', '✗ 3 erros seguidos. Pausando automação.');
+        stopAutomation();
+        return;
+      }
+      await sleep(5000);
+      continue;
+    }
+
+    if (!comments.length) {
+      log('success', '✓ Todos os comentários processados!');
+      break;
+    }
+
+    totalFetched += comments.length;
+    state.queue = comments;
+    updateStats();
+
+    for (let i = 0; i < comments.length; i++) {
+      if (!state.running || jobId !== state.currentJobId) break;
+
+      const comment = comments[i];
+      const authorName = comment.author?.name || comment.authorName || 'usuário';
+      const commentId = comment.commentId || comment.id || String(i);
+
+      // Skip duplicates
+      if (nodup && seenUsers.has(authorName)) {
+        log('', `» Pulando @${authorName} (duplicata)`);
+        continue;
+      }
+
+      seenUsers.add(authorName);
+
+      // Check limit
+      if (limit && totalReplied >= limit) {
+        log('success', `✓ Limite de ${limit} atingido!`);
+        stopAutomation();
+        return;
+      }
+
+      // Pick message
+      const msg = pickMessage(authorName);
+
+      // Delay
+      const delay = getRandomDelay();
+      log('info', `⏳ Aguardando ${(delay/1000).toFixed(1)}s antes de responder @${authorName}...`);
+      await sleep(delay);
+      if (!state.running) break;
+
+      // Send reply
+      try {
+        if (token) {
+          await postReply(commentId, videoId, msg, token);
+        } else {
+          // Simulate random failure rate
+          if (Math.random() < 0.05) throw new Error('simulação de erro');
+        }
+        totalReplied++;
+        state.sent = totalReplied;
+        consecutiveErrors = 0;
+        log('success', `✓ Respondido @${authorName}: "${msg.substring(0, 40)}${msg.length > 40 ? '...' : ''}"`);
+      } catch(e) {
+        state.errors++;
+        consecutiveErrors++;
+        log('error', `✗ Erro ao responder @${authorName}: ${e.message}`);
+        if (document.getElementById('toggle-pause-err').checked && consecutiveErrors >= 3) {
+          log('error', '✗ Muitos erros seguidos. Pausando.');
+          stopAutomation();
+          return;
+        }
+      }
+
+      // Pause every N replies
+      if (state.sent > 0 && state.sent % pauseAfter === 0) {
+        log('warning', `⏸ Pausa programada de ${pauseDuration} min após ${state.sent} respostas...`);
+        await sleep(pauseDuration * 60 * 1000);
+        log('info', '▶ Retomando...');
+      }
+
+      state.queue = comments.slice(i + 1);
+      updateStats();
+      updateProgress(totalReplied, limit || totalFetched);
+    }
+
+    // Next page
+    if (nextCursor && nextCursor !== cursor) {
+      cursor = nextCursor;
+      log('info', '» Carregando próxima página de comentários...');
+    } else {
+      break;
+    }
+  }
+
+  if (state.running) {
+    log('success', `✓ Disparo concluído! ${state.sent} respostas enviadas.`);
+    addToHistory(videoId, state.sent, state.errors);
+    stopAutomation();
+  }
+}
+
+function generateFakeComments(count, offset) {
+  const names = ['João Silva', 'Maria Santos', 'Pedro Alves', 'Ana Costa', 'Lucas Lima', 'Fernanda Rocha', 'Carlos Souza', 'Bianca Neves', 'Rafael Dias', 'Juliana Mendes'];
+  return Array.from({length: count}, (_, i) => ({
+    commentId: String(offset + i + 1),
+    authorName: names[(offset + i) % names.length],
+    author: { name: names[(offset + i) % names.length] },
+    content: 'Comentário simulado ' + (offset + i + 1)
+  }));
+}
+
+function stopAutomation() {
+  state.running = false;
+  state.queue = [];
+  document.getElementById('btn-main').className = 'btn-main start';
+  document.getElementById('btn-main').textContent = '▶ INICIAR DISPARO';
+  document.getElementById('status-dot').classList.remove('active');
+  document.getElementById('status-badge').textContent = '● PARADO';
+  document.getElementById('status-badge').className = 'badge';
+  updateStats();
+  saveToStorage();
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ================================================
+// HISTORY
+// ================================================
+function addToHistory(videoId, sent, errors) {
+  const entry = {
+    id: Date.now(),
+    videoId,
+    sent,
+    errors,
+    date: new Date().toLocaleString('pt-BR')
+  };
+  state.history.unshift(entry);
+  renderHistory();
+  saveToStorage();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!state.history.length) {
+    list.innerHTML = `<div class="empty-state"><div class="emoji">📭</div><p>Nenhum disparo ainda.</p></div>`;
+    return;
+  }
+  list.innerHTML = state.history.slice(0, 20).map(h => `
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <span class="badge">🎬 ${h.videoId.substring(0, 12)}...</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;">${h.date}</span>
+      </div>
+      <div style="display:flex;gap:16px;font-size:13px;">
+        <span>✅ <b style="color:var(--green)">${h.sent}</b> enviados</span>
+        <span>❌ <b style="color:var(--red)">${h.errors}</b> erros</span>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
