@@ -1034,6 +1034,8 @@ function checkURL(url) {
 
   const patterns = [
     /kwai\.com\/(short|video)\/([A-Za-z0-9_-]+)/,
+    /kwai\.com\/p\/([A-Za-z0-9_-]+)/,
+    /k\.kwai\.com\/p\/([A-Za-z0-9_-]+)/,
     /kwaichan\.com\/short\/([A-Za-z0-9_-]+)/,
     /kwai\.app\/([A-Za-z0-9_-]+)/,
   ];
@@ -1141,6 +1143,8 @@ function getHeaders(token) {
 function extractVideoId(url) {
   const patterns = [
     /kwai\.com\/(?:short|video)\/([A-Za-z0-9_-]+)/,
+    /kwai\.com\/p\/([A-Za-z0-9_-]+)/,
+    /k\.kwai\.com\/p\/([A-Za-z0-9_-]+)/,
     /kwaichan\.com\/short\/([A-Za-z0-9_-]+)/,
     /kwai\.app\/([A-Za-z0-9_-]+)/,
   ];
